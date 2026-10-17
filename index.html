@@ -1,95 +1,776 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7ff">
+  <title>Product Lab — Innovation Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Material+Symbols+Rounded&display=swap" rel="stylesheet">
   <style>
+    :root {
+      color-scheme: light;
+      --primary: #5146a5;
+      --on-primary: #ffffff;
+      --primary-container: #e5e0ff;
+      --on-primary-container: #302675;
+      --secondary-container: #e7e5f4;
+      --surface: #f8f7ff;
+      --surface-low: #f1f0f8;
+      --surface-high: #eae9f3;
+      --card: #ffffff;
+      --text: #1c1b23;
+      --muted: #656473;
+      --outline: #d0cfdb;
+      --success: #216e4e;
+      --success-bg: #d9f5e7;
+      --warning: #8c5800;
+      --warning-bg: #ffedd0;
+      --radius: 20px;
+    }
+    body.dark {
+      color-scheme: dark;
+      --primary: #cac3ff;
+      --on-primary: #292064;
+      --primary-container: #40368a;
+      --on-primary-container: #e5e0ff;
+      --secondary-container: #454453;
+      --surface: #14131b;
+      --surface-low: #1d1c26;
+      --surface-high: #302e3a;
+      --card: #252430;
+      --text: #efedf7;
+      --muted: #b5b2c3;
+      --outline: #514f5d;
+      --success: #a5e8c3;
+      --success-bg: #244d3a;
+      --warning: #ffcf85;
+      --warning-bg: #554020;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fb; color: #17243b; }
-    header { background: #17243b; color: white; padding: 22px 6%; display: flex; justify-content: space-between; align-items: center; }
-    header strong { font-size: 22px; }
-    header span { color: #b4c7e4; font-size: 14px; }
-    main { max-width: 1100px; margin: 42px auto; padding: 0 22px; }
-    .heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
-    h1 { font-size: 30px; margin: 0 0 8px; }
-    p { color: #617086; line-height: 1.5; }
-    button { border: 0; border-radius: 9px; padding: 12px 18px; cursor: pointer; background: #2563eb; color: white; font-weight: 600; }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 30px 0; }
-    .stat, .feature { background: white; border: 1px solid #e0e6ef; border-radius: 14px; padding: 22px; }
-    .stat small { color: #617086; }
-    .stat h2 { margin: 12px 0 0; font-size: 32px; }
-    .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
-    .filters button { background: #e6ebf4; color: #263955; }
-    .filters button.active { background: #2563eb; color: white; }
-    .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 18px; }
-    .feature h3 { margin: 12px 0 4px; }
-    .feature p { margin-bottom: 0; }
-    .tag { background: #e6f0ff; color: #1d4ed8; display: inline-block; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .tag.progress { background: #fff2d8; color: #9a5800; }
-    .tag.done { background: #dcfce7; color: #166534; }
-    footer { text-align: center; color: #8190a5; padding: 35px; font-size: 13px; }
-    @media(max-width: 650px) { .stats { grid-template-columns: 1fr; } .features { grid-template-columns: 1fr; } }
+    body {
+      margin: 0;
+      font-family: "DM Sans", Arial, sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      transition: background .2s, color .2s;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible,
+    textarea:focus-visible, a:focus-visible {
+      outline: 3px solid var(--primary);
+      outline-offset: 3px;
+    }
+    .icon {
+      font-family: "Material Symbols Rounded";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: normal;
+      white-space: nowrap;
+      display: inline-block;
+      font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    .app { min-height: 100vh; display: flex; }
+    .sidebar {
+      width: 254px;
+      flex-shrink: 0;
+      padding: 26px 15px;
+      background: var(--surface-low);
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -.7px;
+    }
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+    .side-label {
+      padding: 0 16px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.4px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 13px 17px;
+      border: 0;
+      border-radius: 30px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+      margin: 4px 0;
+    }
+    .nav-item:hover { background: var(--surface-high); }
+    .nav-item.active {
+      background: var(--secondary-container);
+      color: var(--text);
+    }
+    .sidebar-note {
+      margin-top: auto;
+      background: var(--primary-container);
+      border-radius: var(--radius);
+      padding: 18px;
+      color: var(--on-primary-container);
+    }
+    .sidebar-note p { margin: 8px 0 0; font-size: 12px; line-height: 1.6; }
+    .main { flex: 1; min-width: 0; padding: 28px 42px 70px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 42px;
+    }
+    .breadcrumb { color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      border: 0;
+      background: var(--surface-high);
+      color: var(--text);
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+    }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .eyebrow {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(29px, 4vw, 43px);
+      font-weight: 800;
+      letter-spacing: -1.7px;
+      margin: 10px 0 9px;
+    }
+    .subtitle { color: var(--muted); margin: 0; line-height: 1.6; }
+    .primary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      background: var(--primary);
+      color: var(--on-primary);
+      border: 0;
+      border-radius: 30px;
+      padding: 13px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      min-height: 48px;
+    }
+    .primary-btn:hover { opacity: .9; }
+    .secondary-btn {
+      background: var(--surface-high);
+      color: var(--text);
+      border: 0;
+      border-radius: 30px;
+      padding: 12px 20px;
+      font-weight: 700;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 17px;
+      margin-bottom: 37px;
+    }
+    .stat {
+      background: var(--card);
+      padding: 23px;
+      border-radius: 24px;
+      min-height: 152px;
+      border: 1px solid var(--outline);
+    }
+    .stat.featured {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border-color: transparent;
+    }
+    .stat-top { display: flex; align-items: center; justify-content: space-between; }
+    .stat-name { font-size: 13px; font-weight: 700; }
+    .stat .stat-icon {
+      display: grid;
+      place-items: center;
+      width: 37px;
+      height: 37px;
+      border-radius: 12px;
+      background: var(--surface-high);
+    }
+    .stat.featured .stat-icon { background: rgba(100,80,160,.13); }
+    .stat-number { font-size: 39px; font-weight: 800; letter-spacing: -2px; margin-top: 18px; }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 17px;
+    }
+    h2 { margin: 0; font-size: 23px; letter-spacing: -.6px; }
+    .section-sub { font-size: 13px; color: var(--muted); margin: 5px 0 0; }
+    .search {
+      background: var(--surface-high);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 14px;
+      height: 45px;
+      border-radius: 30px;
+      color: var(--muted);
+    }
+    .search input {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      width: 175px;
+      font-size: 13px;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 22px; }
+    .chip {
+      border-radius: 30px;
+      padding: 9px 17px;
+      border: 1px solid var(--outline);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .chip.active {
+      background: var(--secondary-container);
+      border-color: transparent;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 17px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--outline);
+      border-radius: 24px;
+      padding: 23px;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(40,35,75,.08);
+    }
+    .card-header { display: flex; justify-content: space-between; gap: 8px; }
+    .feature-icon {
+      display: grid;
+      place-items: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 15px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 20px;
+      padding: 7px 11px;
+      font-weight: 700;
+      font-size: 11px;
+      height: fit-content;
+    }
+    .status.planned { background: var(--secondary-container); color: var(--text); }
+    .status.progress { background: var(--warning-bg); color: var(--warning); }
+    .status.completed { background: var(--success-bg); color: var(--success); }
+    .card h3 { font-size: 19px; letter-spacing: -.5px; margin: 20px 0 8px; }
+    .card p { color: var(--muted); font-size: 13px; line-height: 1.65; min-height: 42px; }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--outline);
+      padding-top: 15px;
+      margin-top: 18px;
+      gap: 10px;
+    }
+    .card-footer small { color: var(--muted); }
+    .text-btn {
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px;
+    }
+    .empty {
+      grid-column: 1/-1;
+      text-align: center;
+      background: var(--card);
+      border-radius: 24px;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+    dialog {
+      width: min(92vw, 480px);
+      background: var(--card);
+      color: var(--text);
+      border: 0;
+      border-radius: 28px;
+      padding: 29px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.22);
+    }
+    dialog::backdrop { background: rgba(17,16,35,.57); }
+    dialog h2 { margin: 0 0 7px; }
+    dialog p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .field { margin: 18px 0; }
+    .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid var(--outline);
+      border-radius: 12px;
+      background: var(--surface-low);
+      color: var(--text);
+    }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .danger-btn {
+      background: transparent;
+      color: #cc4444;
+      border: 0;
+      padding: 10px;
+      font-weight: 700;
+      margin-right: auto;
+    }
+    @media (max-width: 1020px) {
+      .sidebar { width: 80px; padding: 24px 10px; }
+      .brand { justify-content: center; padding: 0; }
+      .brand-name, .nav-text, .side-label, .sidebar-note { display: none; }
+      .nav-item { justify-content: center; padding: 13px; }
+      .main { padding: 25px; }
+    }
+    @media (max-width: 680px) {
+      .app { display: block; padding-bottom: 75px; }
+      .sidebar {
+        position: fixed;
+        z-index: 5;
+        bottom: 0; left: 0; right: 0;
+        width: 100%; height: 68px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+        border-top: 1px solid var(--outline);
+      }
+      .sidebar .brand, .sidebar .side-label, .sidebar-note { display: none; }
+      .nav { display: flex; width: 100%; justify-content: space-around; }
+      .nav-item { width: auto; margin: 0; padding: 12px 18px; }
+      .main { padding: 19px 16px 36px; }
+      .topbar { margin-bottom: 26px; }
+      .stats { gap: 8px; }
+      .stat { padding: 14px; min-height: 115px; border-radius: 17px; }
+      .stat-number { font-size: 30px; margin-top: 12px; }
+      .stat-name { font-size: 11px; }
+      .stat .stat-icon { display: none; }
+      .cards { grid-template-columns: 1fr; }
+      .search { width: 100%; }
+      .search input { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <header><strong>Product Lab</strong><span>My Product Playground</span></header>
-  <main>
-    <div class="heading">
-      <div>
-        <h1>Product Dashboard</h1>
-        <p>Explore, test, and improve product ideas.</p>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon"><span class="icon">deployed_code</span></span>
+        <span class="brand-name">productlab<span style="color:var(--primary)">.</span></span>
       </div>
-      <button onclick="addIdea()">+ Add Idea</button>
-    </div>
-    <section class="stats">
-      <div class="stat"><small>Total Ideas</small><h2 id="total">3</h2></div>
-      <div class="stat"><small>In Progress</small><h2 id="progress">1</h2></div>
-      <div class="stat"><small>Completed</small><h2 id="done">1</h2></div>
-    </section>
-    <div class="toolbar">
-      <h2>Feature Backlog</h2>
-      <div class="filters">
-        <button class="active" onclick="filterIdeas('All', this)">All</button>
-        <button onclick="filterIdeas('Planned', this)">Planned</button>
-        <button onclick="filterIdeas('In Progress', this)">In Progress</button>
-        <button onclick="filterIdeas('Completed', this)">Completed</button>
+      <nav class="nav" aria-label="Main navigation">
+        <div class="side-label">WORKSPACE</div>
+        <button class="nav-item active" data-nav="Dashboard">
+          <span class="icon">dashboard</span><span class="nav-text">Dashboard</span>
+        </button>
+        <button class="nav-item" data-nav="Ideas">
+          <span class="icon">lightbulb</span><span class="nav-text">Ideas</span>
+        </button>
+        <button class="nav-item" data-nav="Analytics">
+          <span class="icon">monitoring</span><span class="nav-text">Analytics</span>
+        </button>
+      </nav>
+      <div class="sidebar-note">
+        <span class="icon">auto_awesome</span>
+        <strong style="display:block;margin-top:8px">Keep experimenting</strong>
+        <p>Great products start with curiosity. Test, learn, and iterate.</p>
       </div>
-    </div>
-    <section class="features" id="features"></section>
-  </main>
-  <footer>Product Lab · Built to experiment and learn GitHub</footer>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="breadcrumb">Workspace / <strong id="breadcrumb">Dashboard</strong></div>
+        <div class="top-actions">
+          <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode">
+            <span class="icon" id="themeIcon">dark_mode</span>
+          </button>
+          <div class="avatar" title="Product Lab">PL</div>
+        </div>
+      </div>
+
+      <div class="intro">
+        <div>
+          <div class="eyebrow">Your creative workspace</div>
+          <h1 id="pageTitle">Product Innovation Workspace</h1>
+          <p class="subtitle">A home for your next big idea. Explore, build, and learn.</p>
+        </div>
+        <button class="primary-btn" id="newIdeaBtn">
+          <span class="icon">add</span> New idea
+        </button>
+      </div>
+
+      <section class="stats" aria-label="Idea statistics">
+        <div class="stat featured">
+          <div class="stat-top">
+            <span class="stat-name">Total ideas</span>
+            <span class="stat-icon"><span class="icon">lightbulb</span></span>
+          </div>
+          <div class="stat-number" id="totalCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top">
+            <span class="stat-name">In progress</span>
+            <span class="stat-icon"><span class="icon">pending_actions</span></span>
+          </div>
+          <div class="stat-number" id="progressCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-top">
+            <span class="stat-name">Completed</span>
+            <span class="stat-icon"><span class="icon">task_alt</span></span>
+          </div>
+          <div class="stat-number" id="completedCount">0</div>
+        </div>
+      </section>
+
+      <section aria-labelledby="backlogTitle">
+        <div class="section-head">
+          <div>
+            <h2 id="backlogTitle">Feature backlog</h2>
+            <p class="section-sub">Capture opportunities and track your experiments.</p>
+          </div>
+          <label class="search">
+            <span class="icon">search</span>
+            <input type="search" id="searchInput" placeholder="Search ideas..." aria-label="Search ideas">
+          </label>
+        </div>
+
+        <div class="filters" id="filters" aria-label="Filter by status">
+          <button class="chip active" data-status="All" aria-pressed="true">All ideas</button>
+          <button class="chip" data-status="Planned" aria-pressed="false">Planned</button>
+          <button class="chip" data-status="In Progress" aria-pressed="false">In progress</button>
+          <button class="chip" data-status="Completed" aria-pressed="false">Completed</button>
+        </div>
+        <div class="cards" id="featureCards"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="ideaDialog" aria-labelledby="dialogTitle">
+    <form id="ideaForm">
+      <h2 id="dialogTitle">New idea</h2>
+      <p>What problem would you like to solve?</p>
+      <input type="hidden" id="editingId">
+      <div class="field">
+        <label for="ideaTitle">Idea title</label>
+        <input id="ideaTitle" type="text" maxlength="90" required placeholder="e.g. Improve onboarding">
+      </div>
+      <div class="field">
+        <label for="ideaDescription">Description</label>
+        <textarea id="ideaDescription" maxlength="400" required placeholder="Describe the opportunity..."></textarea>
+      </div>
+      <div class="field">
+        <label for="ideaStatus">Status</label>
+        <select id="ideaStatus">
+          <option>Planned</option>
+          <option>In Progress</option>
+          <option>Completed</option>
+        </select>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="deleteIdea" class="danger-btn" hidden>Delete</button>
+        <button type="button" id="cancelDialog" class="secondary-btn">Cancel</button>
+        <button type="submit" class="primary-btn">Save idea</button>
+      </div>
+    </form>
+  </dialog>
+
   <script>
-    const ideas = [
-      {title:"Improve Search", detail:"Make it easier for users to find relevant information.", status:"Planned"},
-      {title:"Redesign Dashboard", detail:"Explore a more intuitive product dashboard experience.", status:"In Progress"},
-      {title:"Account Settings", detail:"Improve the settings and preferences experience.", status:"Completed"}
+    const STORAGE_KEY = "product-lab-m3-ideas";
+    const THEME_KEY = "product-lab-m3-theme";
+    const initialIdeas = [
+      {
+        id: "seed-search",
+        title: "Smarter search experience",
+        description: "Help users find the right information with less friction and fewer clicks.",
+        status: "Planned",
+        icon: "search"
+      },
+      {
+        id: "seed-dashboard",
+        title: "Dashboard redesign",
+        description: "Create a more intuitive and accessible workspace using Material Design 3.",
+        status: "In Progress",
+        icon: "space_dashboard"
+      },
+      {
+        id: "seed-settings",
+        title: "Simplified account settings",
+        description: "Make account preferences easier to discover and manage.",
+        status: "Completed",
+        icon: "tune"
+      }
     ];
+
+    function readSavedIdeas() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return structuredClone(initialIdeas);
+        const data = JSON.parse(saved);
+        return Array.isArray(data) ? data : structuredClone(initialIdeas);
+      } catch {
+        return structuredClone(initialIdeas);
+      }
+    }
+
+    let ideas = readSavedIdeas();
     let currentFilter = "All";
+    let searchTerm = "";
+
+    const byId = id => document.getElementById(id);
+    const dialog = byId("ideaDialog");
+
+    function saveIdeas() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas));
+      } catch (error) {
+        console.warn("Local storage unavailable", error);
+      }
+    }
+
+    function makeIcon(name) {
+      const span = document.createElement("span");
+      span.className = "icon";
+      span.textContent = name;
+      span.setAttribute("aria-hidden", "true");
+      return span;
+    }
+
     function render() {
-      const shown = ideas.filter(i => currentFilter === "All" || i.status === currentFilter);
-      document.getElementById("features").innerHTML = shown.map(i =>
-        '<article class="feature"><span class="tag ' + (i.status === "Completed" ? "done" : i.status === "In Progress" ? "progress" : "") + '">' + i.status + '</span><h3>' + i.title + '</h3><p>' + i.detail + '</p></article>'
-      ).join("");
-      document.getElementById("total").textContent = ideas.length;
-      document.getElementById("progress").textContent = ideas.filter(i => i.status === "In Progress").length;
-      document.getElementById("done").textContent = ideas.filter(i => i.status === "Completed").length;
+      byId("totalCount").textContent = ideas.length;
+      byId("progressCount").textContent =
+        ideas.filter(i => i.status === "In Progress").length;
+      byId("completedCount").textContent =
+        ideas.filter(i => i.status === "Completed").length;
+
+      const visible = ideas.filter(i => {
+        const matchesStatus = currentFilter === "All" || i.status === currentFilter;
+        const matchesSearch = (i.title + " " + i.description)
+          .toLowerCase().includes(searchTerm);
+        return matchesStatus && matchesSearch;
+      });
+
+      const container = byId("featureCards");
+      container.replaceChildren();
+
+      if (!visible.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No ideas found. Try a different search or add a new idea.";
+        container.append(empty);
+        return;
+      }
+
+      visible.forEach(idea => {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const header = document.createElement("div");
+        header.className = "card-header";
+
+        const iconBox = document.createElement("div");
+        iconBox.className = "feature-icon";
+        iconBox.append(makeIcon(idea.icon || "lightbulb"));
+
+        const badge = document.createElement("span");
+        badge.className = "status " +
+          (idea.status === "Completed" ? "completed" :
+           idea.status === "In Progress" ? "progress" : "planned");
+        badge.textContent = idea.status;
+        header.append(iconBox, badge);
+
+        const title = document.createElement("h3");
+        title.textContent = idea.title;
+        const desc = document.createElement("p");
+        desc.textContent = idea.description;
+
+        const footer = document.createElement("div");
+        footer.className = "card-footer";
+
+        const category = document.createElement("small");
+        category.textContent = "Product experiment";
+
+        const edit = document.createElement("button");
+        edit.className = "text-btn";
+        edit.append("Edit ", makeIcon("arrow_forward"));
+        edit.addEventListener("click", () => openEditor(idea.id));
+        footer.append(category, edit);
+
+        card.append(header, title, desc, footer);
+        container.append(card);
+      });
     }
-    function filterIdeas(status, button) {
-      currentFilter = status;
-      document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
+
+    function openEditor(id = null) {
+      const idea = ideas.find(i => i.id === id);
+      byId("editingId").value = idea ? idea.id : "";
+      byId("dialogTitle").textContent = idea ? "Edit idea" : "New idea";
+      byId("ideaTitle").value = idea ? idea.title : "";
+      byId("ideaDescription").value = idea ? idea.description : "";
+      byId("ideaStatus").value = idea ? idea.status : "Planned";
+      byId("deleteIdea").hidden = !idea;
+      dialog.showModal();
+      byId("ideaTitle").focus();
+    }
+
+    byId("newIdeaBtn").addEventListener("click", () => openEditor());
+    byId("cancelDialog").addEventListener("click", () => dialog.close());
+
+    byId("ideaForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const id = byId("editingId").value;
+      const title = byId("ideaTitle").value.trim();
+      const description = byId("ideaDescription").value.trim();
+      const status = byId("ideaStatus").value;
+      if (!title || !description) return;
+
+      if (id) {
+        const item = ideas.find(i => i.id === id);
+        if (item) Object.assign(item, { title, description, status });
+      } else {
+        ideas.unshift({
+          id: crypto.randomUUID(),
+          title, description, status, icon: "lightbulb"
+        });
+      }
+      saveIdeas();
+      dialog.close();
       render();
-    }
-    function addIdea() {
-      const title = prompt("What is your new feature idea?");
-      if (!title || !title.trim()) return;
-      ideas.push({title: title.trim().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])), detail:"New feature idea to explore.", status:"Planned"});
-      currentFilter = "All";
-      document.querySelectorAll(".filters button").forEach(b => b.classList.toggle("active", b.textContent === "All"));
+    });
+
+    byId("deleteIdea").addEventListener("click", () => {
+      const id = byId("editingId").value;
+      if (!id || !confirm("Delete this idea?")) return;
+      ideas = ideas.filter(i => i.id !== id);
+      saveIdeas();
+      dialog.close();
       render();
+    });
+
+    byId("filters").addEventListener("click", event => {
+      const button = event.target.closest("[data-status]");
+      if (!button) return;
+      currentFilter = button.dataset.status;
+      document.querySelectorAll(".chip").forEach(chip => {
+        const active = chip === button;
+        chip.classList.toggle("active", active);
+        chip.setAttribute("aria-pressed", String(active));
+      });
+      render();
+    });
+
+    byId("searchInput").addEventListener("input", event => {
+      searchTerm = event.target.value.toLowerCase().trim();
+      render();
+    });
+
+    function applyTheme(mode) {
+      document.body.classList.toggle("dark", mode === "dark");
+      byId("themeIcon").textContent =
+        mode === "dark" ? "light_mode" : "dark_mode";
     }
+
+    byId("themeToggle").addEventListener("click", () => {
+      const mode = document.body.classList.contains("dark") ? "light" : "dark";
+      applyTheme(mode);
+      try { localStorage.setItem(THEME_KEY, mode); } catch {}
+    });
+
+    let savedTheme = "light";
+    try { savedTheme = localStorage.getItem(THEME_KEY) || "light"; } catch {}
+    applyTheme(savedTheme);
+
+    document.querySelectorAll("[data-nav]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-nav]").forEach(b =>
+          b.classList.toggle("active", b === button));
+        const page = button.dataset.nav;
+        byId("breadcrumb").textContent = page;
+
+        if (page === "Ideas") {
+          byId("backlogTitle").scrollIntoView({ behavior: "smooth" });
+          byId("searchInput").focus({ preventScroll: true });
+        } else if (page === "Analytics") {
+          document.querySelector(".stats").scrollIntoView({ behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    });
+
     render();
   </script>
 </body>
