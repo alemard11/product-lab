@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Lab</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fb; color: #17243b; }
+    header { background: #17243b; color: white; padding: 22px 6%; display: flex; justify-content: space-between; align-items: center; }
+    header strong { font-size: 22px; }
+    header span { color: #b4c7e4; font-size: 14px; }
+    main { max-width: 1100px; margin: 42px auto; padding: 0 22px; }
+    .heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    h1 { font-size: 30px; margin: 0 0 8px; }
+    p { color: #617086; line-height: 1.5; }
+    button { border: 0; border-radius: 9px; padding: 12px 18px; cursor: pointer; background: #2563eb; color: white; font-weight: 600; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 30px 0; }
+    .stat, .feature { background: white; border: 1px solid #e0e6ef; border-radius: 14px; padding: 22px; }
+    .stat small { color: #617086; }
+    .stat h2 { margin: 12px 0 0; font-size: 32px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filters button { background: #e6ebf4; color: #263955; }
+    .filters button.active { background: #2563eb; color: white; }
+    .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 18px; }
+    .feature h3 { margin: 12px 0 4px; }
+    .feature p { margin-bottom: 0; }
+    .tag { background: #e6f0ff; color: #1d4ed8; display: inline-block; padding: 6px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .tag.progress { background: #fff2d8; color: #9a5800; }
+    .tag.done { background: #dcfce7; color: #166534; }
+    footer { text-align: center; color: #8190a5; padding: 35px; font-size: 13px; }
+    @media(max-width: 650px) { .stats { grid-template-columns: 1fr; } .features { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header><strong>Product Lab</strong><span>My Product Playground</span></header>
+  <main>
+    <div class="heading">
+      <div>
+        <h1>Product Dashboard</h1>
+        <p>Explore, test, and improve product ideas.</p>
+      </div>
+      <button onclick="addIdea()">+ Add Idea</button>
+    </div>
+    <section class="stats">
+      <div class="stat"><small>Total Ideas</small><h2 id="total">3</h2></div>
+      <div class="stat"><small>In Progress</small><h2 id="progress">1</h2></div>
+      <div class="stat"><small>Completed</small><h2 id="done">1</h2></div>
+    </section>
+    <div class="toolbar">
+      <h2>Feature Backlog</h2>
+      <div class="filters">
+        <button class="active" onclick="filterIdeas('All', this)">All</button>
+        <button onclick="filterIdeas('Planned', this)">Planned</button>
+        <button onclick="filterIdeas('In Progress', this)">In Progress</button>
+        <button onclick="filterIdeas('Completed', this)">Completed</button>
+      </div>
+    </div>
+    <section class="features" id="features"></section>
+  </main>
+  <footer>Product Lab · Built to experiment and learn GitHub</footer>
+  <script>
+    const ideas = [
+      {title:"Improve Search", detail:"Make it easier for users to find relevant information.", status:"Planned"},
+      {title:"Redesign Dashboard", detail:"Explore a more intuitive product dashboard experience.", status:"In Progress"},
+      {title:"Account Settings", detail:"Improve the settings and preferences experience.", status:"Completed"}
+    ];
+    let currentFilter = "All";
+    function render() {
+      const shown = ideas.filter(i => currentFilter === "All" || i.status === currentFilter);
+      document.getElementById("features").innerHTML = shown.map(i =>
+        '<article class="feature"><span class="tag ' + (i.status === "Completed" ? "done" : i.status === "In Progress" ? "progress" : "") + '">' + i.status + '</span><h3>' + i.title + '</h3><p>' + i.detail + '</p></article>'
+      ).join("");
+      document.getElementById("total").textContent = ideas.length;
+      document.getElementById("progress").textContent = ideas.filter(i => i.status === "In Progress").length;
+      document.getElementById("done").textContent = ideas.filter(i => i.status === "Completed").length;
+    }
+    function filterIdeas(status, button) {
+      currentFilter = status;
+      document.querySelectorAll(".filters button").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      render();
+    }
+    function addIdea() {
+      const title = prompt("What is your new feature idea?");
+      if (!title || !title.trim()) return;
+      ideas.push({title: title.trim().replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])), detail:"New feature idea to explore.", status:"Planned"});
+      currentFilter = "All";
+      document.querySelectorAll(".filters button").forEach(b => b.classList.toggle("active", b.textContent === "All"));
+      render();
+    }
+    render();
+  </script>
+</body>
+</html>
