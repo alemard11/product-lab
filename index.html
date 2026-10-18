@@ -480,12 +480,15 @@
       <div class="topbar">
         <div class="breadcrumb">Workspace / <strong id="breadcrumb">Dashboard</strong></div>
         <div class="top-actions">
+          <button class="secondary-btn" id="feedbackBtn" type="button" aria-describedby="feedbackStatus">Feedback</button>
           <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode">
             <span class="icon" id="themeIcon">dark_mode</span>
           </button>
           <div class="avatar" title="Product Lab">PL</div>
         </div>
       </div>
+
+      <p id="feedbackStatus" role="status" aria-live="polite"></p>
 
       <div class="intro">
         <div>
@@ -654,6 +657,88 @@
 
     const byId = id => document.getElementById(id);
     const dialog = byId("ideaDialog");
+
+    // Fill these values after publishing the survey. Use the public project API
+    // key, never an Amplitude secret key. See README.md for survey setup.
+    const FEEDBACK_CONFIG = Object.freeze({
+      apiKey: "",
+      surveyKey: "",
+      serverZone: "US"
+    });
+
+    let feedbackReady;
+    function loadFeedbackScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        const timer = setTimeout(() => {
+          script.remove();
+          reject(new Error("Amplitude script timed out"));
+        }, 10000);
+        script.src = src;
+        script.onload = () => { clearTimeout(timer); resolve(); };
+        script.onerror = () => {
+          clearTimeout(timer);
+          script.remove();
+          reject(new Error("Amplitude script failed to load"));
+        };
+        document.head.append(script);
+      });
+    }
+
+    function initializeFeedback() {
+      if (!feedbackReady) {
+        feedbackReady = (async () => {
+          await loadFeedbackScript("https://cdn.amplitude.com/libs/analytics-browser-2.48.0-min.js.gz");
+          await loadFeedbackScript(
+            "https://cdn.amplitude.com/script/" +
+            encodeURIComponent(FEEDBACK_CONFIG.apiKey) + ".engagement.js"
+          );
+          // Register Engagement before Analytics init so survey responses and
+          // visitor identity are shared with the same Amplitude project.
+          const plugin = window.amplitude.add(
+            window.engagement.plugin({ serverZone: FEEDBACK_CONFIG.serverZone })
+          );
+          await Promise.all([
+            plugin.promise,
+            window.amplitude.init(FEEDBACK_CONFIG.apiKey, {
+              serverZone: FEEDBACK_CONFIG.serverZone,
+              autocapture: false
+            }).promise
+          ]);
+        })();
+      }
+      return feedbackReady;
+    }
+
+    byId("feedbackBtn").addEventListener("click", async () => {
+      const button = byId("feedbackBtn");
+      const status = byId("feedbackStatus");
+      status.textContent = "";
+      if (!FEEDBACK_CONFIG.apiKey || !FEEDBACK_CONFIG.surveyKey) {
+        status.textContent = "Feedback is not available yet. Please try again later.";
+        return;
+      }
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      let timer;
+      try {
+        await Promise.race([
+          initializeFeedback(),
+          new Promise((_, reject) => {
+            timer = setTimeout(() => reject(new Error("Amplitude initialization timed out")), 15000);
+          })
+        ]);
+        window.engagement.gs.show(FEEDBACK_CONFIG.surveyKey);
+      } catch (error) {
+        console.warn("Could not open feedback survey", error);
+        status.textContent = "We couldn't open the feedback survey. Please reload and try again.";
+      } finally {
+        clearTimeout(timer);
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+      }
+    });
+
 
     function saveIdeas() {
       try {
