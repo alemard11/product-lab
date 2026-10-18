@@ -356,6 +356,28 @@
       padding: 50px 20px;
       color: var(--muted);
     }
+    [hidden] { display: none !important; }
+    .main { min-width: 0; }
+    .roadmap-controls, .milestone-legend { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .milestone-legend { margin-bottom: 20px; font-size: 13px; color: var(--muted); }
+    .timeline-scroll { overflow-x: auto; border: 1px solid var(--outline); border-radius: 20px; background: var(--card); }
+    .timeline { width: 100%; min-width: 1250px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .timeline th, .timeline td { padding: 14px 8px; border-bottom: 1px solid var(--outline); border-right: 1px solid var(--outline); vertical-align: top; text-align: center; }
+    .timeline tr:last-child td, .timeline tr:last-child th { border-bottom: 0; }
+    .timeline th { font-size: 12px; color: var(--muted); background: var(--surface-low); }
+    .timeline th:first-child { width: 230px; position: sticky; left: 0; z-index: 1; text-align: left; }
+    .timeline tbody th { background: var(--card); }
+    .timeline .idea-link { text-align: left; overflow-wrap: anywhere; }
+    .timeline small { display: block; margin: 5px 6px; font-weight: 400; }
+    .milestone { display: inline-block; padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 800; margin: 2px; }
+    .milestone.alpha { background: var(--secondary-container); color: var(--text); }
+    .milestone.beta { background: var(--primary-container); color: var(--on-primary-container); }
+    .milestone.ea { background: var(--warning-bg); color: var(--warning); }
+    .milestone.ga { background: var(--success-bg); color: var(--success); }
+    .timeline .current-month { background: var(--primary-container); color: var(--on-primary-container); }
+    .milestone-fields { border: 1px solid var(--outline); border-radius: 14px; margin: 20px 0; padding: 12px; }
+    .milestone-fields legend { font-size: 14px; font-weight: 700; }
+    .milestone-fields .field { margin: 10px 0; }
     dialog {
       width: min(92vw, 480px);
       background: var(--card);
@@ -418,6 +440,7 @@
       .stat-number { font-size: 30px; margin-top: 12px; }
       .stat-name { font-size: 11px; }
       .stat .stat-icon { display: none; }
+      .timeline th:first-child { width: 170px; }
       .cards { grid-template-columns: 1fr; }
       .search { width: 100%; }
       .search input { width: 100%; }
@@ -438,6 +461,9 @@
         </button>
         <button class="nav-item" data-nav="Ideas">
           <span class="icon">lightbulb</span><span class="nav-text">Ideas</span>
+        </button>
+        <button class="nav-item" data-nav="Roadmap" aria-label="Roadmap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4v16h16M7 8h6M10 12h7M14 16h6"/></svg><span class="nav-text">Roadmap</span>
         </button>
         <button class="nav-item" data-nav="Analytics">
           <span class="icon">monitoring</span><span class="nav-text">Analytics</span>
@@ -496,7 +522,7 @@
         </div>
       </section>
 
-      <section aria-labelledby="backlogTitle">
+      <section id="backlogSection" aria-labelledby="backlogTitle">
         <div class="section-head">
           <div>
             <h2 id="backlogTitle">Feature backlog</h2>
@@ -515,6 +541,34 @@
           <button class="chip" data-status="Completed" aria-pressed="false">Completed</button>
         </div>
         <div class="cards" id="featureCards"></div>
+      </section>
+      <section id="roadmapSection" aria-labelledby="roadmapTitle" hidden>
+        <div class="section-head">
+          <div>
+            <h2 id="roadmapTitle">Product roadmap</h2>
+            <p class="section-sub">Plan when ideas become available. Select an idea to schedule its milestones.</p>
+          </div>
+          <div class="roadmap-controls">
+            <button class="icon-btn" id="previousYear" aria-label="Previous year">←</button>
+            <strong id="roadmapYear" aria-live="polite"></strong>
+            <button class="icon-btn" id="nextYear" aria-label="Next year">→</button>
+            <button class="text-btn" id="currentYear">This year</button>
+          </div>
+        </div>
+        <div class="milestone-legend" aria-label="Release milestones">
+          <span><span class="milestone alpha">Alpha</span> Early testing</span>
+          <span><span class="milestone beta">Beta</span> Broader testing</span>
+          <span><span class="milestone ea">EA</span> Early access</span>
+          <span><span class="milestone ga">GA</span> General availability</span>
+        </div>
+        <p id="roadmapEmpty" class="empty" hidden>No ideas yet. Add an idea to start planning your roadmap.</p>
+        <div class="timeline-scroll" id="roadmapTimeline" tabindex="0" role="region" aria-label="Monthly roadmap, scroll horizontally to see all months">
+          <table class="timeline">
+            <caption class="section-sub">Monthly release targets — dates are plans and may change.</caption>
+            <thead id="timelineHead"></thead>
+            <tbody id="timelineBody"></tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
@@ -540,6 +594,14 @@
           <option>Completed</option>
         </select>
       </div>
+      <fieldset class="milestone-fields">
+        <legend>Roadmap milestones (optional)</legend>
+        <p>Choose a target month for each release stage. Leave blank if unscheduled.</p>
+        <div class="field"><label for="milestoneAlpha">Alpha</label><input type="month" id="milestoneAlpha" min="0001-01" max="9999-12"></div>
+        <div class="field"><label for="milestoneBeta">Beta</label><input type="month" id="milestoneBeta" min="0001-01" max="9999-12"></div>
+        <div class="field"><label for="milestoneEA">EA — Early access</label><input type="month" id="milestoneEA" min="0001-01" max="9999-12"></div>
+        <div class="field"><label for="milestoneGA">GA — General availability</label><input type="month" id="milestoneGA" min="0001-01" max="9999-12"></div>
+      </fieldset>
       <div class="dialog-actions">
         <button type="button" id="deleteIdea" class="danger-btn" hidden>Delete</button>
         <button type="button" id="cancelDialog" class="secondary-btn">Cancel</button>
@@ -609,7 +671,71 @@
       return span;
     }
 
+    const milestoneNames = ["Alpha", "Beta", "EA", "GA"];
+    let roadmapYear = new Date().getFullYear();
+
+    function renderRoadmap() {
+      byId("roadmapYear").textContent = roadmapYear;
+      byId("previousYear").disabled = roadmapYear <= 1;
+      byId("nextYear").disabled = roadmapYear >= 9999;
+      byId("roadmapEmpty").hidden = ideas.length > 0;
+      byId("roadmapTimeline").hidden = ideas.length === 0;
+      const head = document.createElement("tr");
+      const label = document.createElement("th");
+      label.scope = "col";
+      label.textContent = "Idea / release stage";
+      head.append(label);
+      const now = new Date();
+      const months = Array.from({ length: 12 }, (_, month) => {
+        const key = String(roadmapYear).padStart(4, "0") + "-" + String(month + 1).padStart(2, "0");
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.textContent = new Intl.DateTimeFormat("en", { month: "short" }).format(new Date(2000, month, 1));
+        if (roadmapYear === now.getFullYear() && month === now.getMonth()) th.className = "current-month";
+        head.append(th);
+        return key;
+      });
+      byId("timelineHead").replaceChildren(head);
+      byId("timelineBody").replaceChildren();
+      ideas.forEach(idea => {
+        const row = document.createElement("tr");
+        const title = document.createElement("th");
+        title.scope = "row";
+        const edit = document.createElement("button");
+        edit.className = "text-btn idea-link";
+        edit.textContent = idea.title;
+        edit.setAttribute("aria-label", "Schedule " + idea.title);
+        edit.addEventListener("click", () => openEditor(idea.id));
+        const note = document.createElement("small");
+        const scheduled = milestoneNames.map(name => idea.milestones?.[name]).filter(Boolean);
+        note.textContent = !scheduled.length ? "Unscheduled" : scheduled.some(date => months.includes(date)) ? idea.status : "Milestones outside " + roadmapYear;
+        title.append(edit, note);
+        row.append(title);
+        months.forEach(month => {
+          const cell = document.createElement("td");
+          milestoneNames.forEach(name => {
+            if (idea.milestones?.[name] !== month) return;
+            const marker = document.createElement("span");
+            marker.className = "milestone " + name.toLowerCase();
+            marker.textContent = name;
+            marker.title = idea.title + " — " + name + ": " + month;
+            cell.append(marker);
+          });
+          row.append(cell);
+        });
+        byId("timelineBody").append(row);
+      });
+    }
+
+    ["previousYear", "nextYear", "currentYear"].forEach(id => {
+      byId(id).addEventListener("click", () => {
+        roadmapYear = id === "currentYear" ? new Date().getFullYear() : roadmapYear + (id === "nextYear" ? 1 : -1);
+        renderRoadmap();
+      });
+    });
+
     function render() {
+      renderRoadmap();
       byId("totalCount").textContent = ideas.length;
       byId("progressCount").textContent =
         ideas.filter(i => i.status === "In Progress").length;
@@ -682,6 +808,11 @@
       byId("ideaDescription").value = idea ? idea.description : "";
       byId("ideaStatus").value = idea ? idea.status : "Planned";
       byId("deleteIdea").hidden = !idea;
+      milestoneNames.forEach(name => {
+        const input = byId("milestone" + name);
+        input.value = idea?.milestones?.[name] || "";
+        input.setCustomValidity("");
+      });
       dialog.showModal();
       byId("ideaTitle").focus();
     }
@@ -697,19 +828,36 @@
       const status = byId("ideaStatus").value;
       if (!title || !description) return;
 
+      const milestones = Object.fromEntries(milestoneNames.map(name => [name, byId("milestone" + name).value]).filter(([, month]) => month));
+      let previousMonth = "";
+      for (const name of milestoneNames) {
+        const input = byId("milestone" + name);
+        input.setCustomValidity("");
+        if (!input.value) continue;
+        if (previousMonth && input.value < previousMonth) {
+          input.setCustomValidity("Milestones must follow Alpha, Beta, EA, GA order (the same month is allowed).");
+          input.reportValidity();
+          return;
+        }
+        previousMonth = input.value;
+      }
       if (id) {
         const item = ideas.find(i => i.id === id);
-        if (item) Object.assign(item, { title, description, status });
+        if (item) Object.assign(item, { title, description, status, milestones });
       } else {
         ideas.unshift({
           id: crypto.randomUUID(),
-          title, description, status, icon: "lightbulb"
+          title, description, status, milestones, icon: "lightbulb"
         });
       }
       saveIdeas();
       dialog.close();
       render();
     });
+
+    milestoneNames.forEach(name => byId("milestone" + name).addEventListener("input", () => {
+      milestoneNames.forEach(stage => byId("milestone" + stage).setCustomValidity(""));
+    }));
 
     byId("deleteIdea").addEventListener("click", () => {
       const id = byId("editingId").value;
@@ -759,6 +907,15 @@
           b.classList.toggle("active", b === button));
         const page = button.dataset.nav;
         byId("breadcrumb").textContent = page;
+        const isRoadmap = page === "Roadmap";
+        byId("roadmapSection").hidden = !isRoadmap;
+        byId("backlogSection").hidden = isRoadmap;
+        document.querySelector(".stats").hidden = isRoadmap;
+        byId("pageTitle").textContent = isRoadmap ? "Product Roadmap" : "Product Innovation Workspace";
+        document.querySelectorAll("[data-nav]").forEach(b => {
+          if (b === button) b.setAttribute("aria-current", "page");
+          else b.removeAttribute("aria-current");
+        });
 
         if (page === "Ideas") {
           byId("backlogTitle").scrollIntoView({ behavior: "smooth" });
